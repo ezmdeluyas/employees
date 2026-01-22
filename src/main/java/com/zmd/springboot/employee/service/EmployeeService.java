@@ -6,16 +6,9 @@ import com.zmd.springboot.employee.entity.Employee;
 import java.util.List;
 
 public interface EmployeeService {
-
-    List<Employee> findAll();
-
-    Employee findById(long id);
-
-    Employee save(EmployeeRequest employeeRequest);
-
-    Employee update(long id, EmployeeRequest employeeRequest);
-
-    Employee convertToEmployee(long id, EmployeeRequest employeeRequest);
-
-    void deleteById(long id);
+    List<Employee> getAll();
+    Employee getById(long id);
+    Employee create(EmployeeRequest request);
+    Employee update(long id, EmployeeRequest request);
+    void delete(long id);
 }
