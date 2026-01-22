@@ -54,4 +54,11 @@ public class EmployeeController {
         return employeeService.update(employeeId, employeeRequest);
     }
 
+    @Operation(summary = "Delete an employee", description = "Remove an employee from the database")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{employeeId}")
+    public void deleteEmployee(@PathVariable @Min(1) long employeeId) {
+        employeeService.deleteById(employeeId);
+    }
+
 }
