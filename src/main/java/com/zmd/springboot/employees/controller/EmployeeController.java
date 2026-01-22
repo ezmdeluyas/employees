@@ -2,6 +2,7 @@ package com.zmd.springboot.employees.controller;
 
 import com.zmd.springboot.employees.dto.EmployeeRequest;
 import com.zmd.springboot.employees.entity.Employee;
+import com.zmd.springboot.employees.exception.EmployeeNotFoundException;
 import com.zmd.springboot.employees.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,10 +10,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/employees")
 @Tag(name = "Employee Rest API Endpoints", description = "Operations related to employees")
@@ -36,7 +39,11 @@ public class EmployeeController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{employeeId}")
     public Employee getEmployee(@PathVariable @Min(1) long employeeId) {
-        return employeeService.findById(employeeId);
+        Employee employee = employeeService.findById(employeeId);
+        if (employee == null) {
+            throw new EmployeeNotFoundException(employeeId);
+        }
+        return employee;
     }
 
     @Operation(summary = "Create a new employee", description = "Add a new employee to database")
@@ -51,6 +58,10 @@ public class EmployeeController {
     @PutMapping("/{employeeId}")
     public Employee updateEmployee(@PathVariable @Min(1) long employeeId,
                                    @Valid @RequestBody EmployeeRequest employeeRequest) {
+        Employee employee = employeeService.findById(employeeId);
+        if (employee == null) {
+            throw new EmployeeNotFoundException(employeeId);
+        }
         return employeeService.update(employeeId, employeeRequest);
     }
 
@@ -58,6 +69,10 @@ public class EmployeeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{employeeId}")
     public void deleteEmployee(@PathVariable @Min(1) long employeeId) {
+        Employee employee = employeeService.findById(employeeId);
+        if (employee == null) {
+            throw new EmployeeNotFoundException(employeeId);
+        }
         employeeService.deleteById(employeeId);
     }
 
