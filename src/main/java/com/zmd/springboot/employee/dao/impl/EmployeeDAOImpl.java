@@ -1,7 +1,7 @@
-package com.zmd.springboot.employees.dao.impl;
+package com.zmd.springboot.employee.dao.impl;
 
-import com.zmd.springboot.employees.dao.EmployeeDAO;
-import com.zmd.springboot.employees.entity.Employee;
+import com.zmd.springboot.employee.dao.EmployeeDAO;
+import com.zmd.springboot.employee.entity.Employee;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,9 @@ public class EmployeeDAOImpl implements EmployeeDAO {
     @Override
     public void deleteById(long id) {
         Employee employee = entityManager.find(Employee.class, id);
-        entityManager.remove(employee);
+        if (employee != null) {
+            entityManager.remove(employee);
+        }
     }
 
 }

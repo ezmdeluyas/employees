@@ -1,4 +1,4 @@
-package com.zmd.springboot.employees.exception;
+package com.zmd.springboot.employee.exception;
 
 public class EmployeeNotFoundException extends RuntimeException {
     public EmployeeNotFoundException(long id) {

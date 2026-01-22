@@ -1,4 +1,4 @@
-package com.zmd.springboot.employees.dto;
+package com.zmd.springboot.employee.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

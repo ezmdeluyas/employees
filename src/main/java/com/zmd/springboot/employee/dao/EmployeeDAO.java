@@ -1,6 +1,6 @@
-package com.zmd.springboot.employees.dao;
+package com.zmd.springboot.employee.dao;
 
-import com.zmd.springboot.employees.entity.Employee;
+import com.zmd.springboot.employee.entity.Employee;
 
 import java.util.List;
 

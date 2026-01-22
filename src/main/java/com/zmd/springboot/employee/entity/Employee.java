@@ -1,4 +1,4 @@
-package com.zmd.springboot.employees.entity;
+package com.zmd.springboot.employee.entity;
 
 import jakarta.persistence.*;
 
@@ -11,13 +11,13 @@ public class Employee {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name",  nullable = false)
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
 
     protected Employee() {}
@@ -31,10 +31,6 @@ public class Employee {
 
     public long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getFirstName() {

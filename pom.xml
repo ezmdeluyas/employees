@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.zmd.springboot</groupId>
-	<artifactId>employees</artifactId>
+	<artifactId>employee</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>employees</name>
+	<name>employee</name>
 	<description>Employees project for Spring Boot</description>
 	<url/>
 	<licenses>
