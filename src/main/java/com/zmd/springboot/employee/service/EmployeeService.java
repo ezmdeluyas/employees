@@ -1,7 +1,7 @@
-package com.zmd.springboot.employees.service;
+package com.zmd.springboot.employee.service;
 
-import com.zmd.springboot.employees.dto.EmployeeRequest;
-import com.zmd.springboot.employees.entity.Employee;
+import com.zmd.springboot.employee.dto.EmployeeRequest;
+import com.zmd.springboot.employee.entity.Employee;
 
 import java.util.List;
 

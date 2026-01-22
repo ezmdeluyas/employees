@@ -1,9 +1,9 @@
-package com.zmd.springboot.employees.controller;
+package com.zmd.springboot.employee.controller;
 
-import com.zmd.springboot.employees.dto.EmployeeRequest;
-import com.zmd.springboot.employees.entity.Employee;
-import com.zmd.springboot.employees.exception.EmployeeNotFoundException;
-import com.zmd.springboot.employees.service.EmployeeService;
+import com.zmd.springboot.employee.dto.EmployeeRequest;
+import com.zmd.springboot.employee.entity.Employee;
+import com.zmd.springboot.employee.exception.EmployeeNotFoundException;
+import com.zmd.springboot.employee.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

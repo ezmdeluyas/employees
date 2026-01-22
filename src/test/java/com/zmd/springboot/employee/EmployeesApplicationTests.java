@@ -1,4 +1,4 @@
-package com.zmd.springboot.employees;
+package com.zmd.springboot.employee;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

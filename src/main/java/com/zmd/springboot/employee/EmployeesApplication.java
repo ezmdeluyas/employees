@@ -1,4 +1,4 @@
-package com.zmd.springboot.employees;
+package com.zmd.springboot.employee;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

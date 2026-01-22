@@ -1,9 +1,9 @@
-package com.zmd.springboot.employees.service.impl;
+package com.zmd.springboot.employee.service.impl;
 
-import com.zmd.springboot.employees.dao.EmployeeDAO;
-import com.zmd.springboot.employees.dto.EmployeeRequest;
-import com.zmd.springboot.employees.entity.Employee;
-import com.zmd.springboot.employees.service.EmployeeService;
+import com.zmd.springboot.employee.dao.EmployeeDAO;
+import com.zmd.springboot.employee.dto.EmployeeRequest;
+import com.zmd.springboot.employee.entity.Employee;
+import com.zmd.springboot.employee.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

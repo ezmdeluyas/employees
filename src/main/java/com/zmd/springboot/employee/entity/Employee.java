@@ -1,4 +1,4 @@
-package com.zmd.springboot.employees.entity;
+package com.zmd.springboot.employee.entity;
 
 import jakarta.persistence.*;
 
