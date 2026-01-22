@@ -46,4 +46,12 @@ public class EmployeeController {
         return employeeService.save(employeeRequest);
     }
 
+    @Operation(summary = "Update an employee", description = "Update the details of a current employee")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{employeeId}")
+    public Employee updateEmployee(@PathVariable @Min(1) long employeeId,
+                                   @Valid @RequestBody EmployeeRequest employeeRequest) {
+        return employeeService.update(employeeId, employeeRequest);
+    }
+
 }

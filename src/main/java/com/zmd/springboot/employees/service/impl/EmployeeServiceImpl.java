@@ -40,7 +40,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public Employee update(long id, EmployeeRequest employeeRequest) {
-        return convertToEmployee(id, employeeRequest);
+        Employee employee = convertToEmployee(id, employeeRequest);
+        return employeeDao.save(employee);
     }
 
     @Override
