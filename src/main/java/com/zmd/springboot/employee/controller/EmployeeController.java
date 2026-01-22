@@ -16,9 +16,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import static com.zmd.springboot.employee.config.ApiPaths.EMPLOYEES;
+
 @Validated
 @RestController
-@RequestMapping("/api/v1/employees")
+@RequestMapping(EMPLOYEES)
 @Tag(name = "Employee Rest API Endpoints", description = "Operations related to employees")
 public class EmployeeController {
 

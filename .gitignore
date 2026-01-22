@@ -34,3 +34,8 @@ build/
 
 ### Spring Boot Config ###
 src/main/resources/application*.properties
+
+# Local database files
+/data/
+*.mv.db
+*.trace.db

@@ -42,7 +42,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee create(EmployeeRequest request) {
         // Using id=0 is OK because IDENTITY will generate a real id
         Employee employee = new Employee(
-                0,
                 request.getFirstName(),
                 request.getLastName(),
                 request.getEmail()
