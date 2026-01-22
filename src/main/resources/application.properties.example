@@ -1,0 +1,45 @@
+#############################
+# Application Configuration
+#############################
+
+spring.application.name=my-springboot-app
+server.port=8080
+
+
+#############################
+# Database Configuration (H2 - Dev Example)
+#############################
+
+spring.datasource.url=jdbc:h2:file:./data/testdb
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+
+#############################
+# JPA / Hibernate Configuration
+#############################
+
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+# Recommended for development only
+spring.jpa.hibernate.ddl-auto=none
+
+# Debugging helpers (optional)
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+
+#############################
+# H2 Console (Development Only)
+#############################
+
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+
+#############################
+# Spring Profile
+#############################
+
+spring.profiles.active=dev
