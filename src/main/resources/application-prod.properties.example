@@ -1,0 +1,21 @@
+#############################
+# Production Database
+#############################
+
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASS}
+spring.datasource.driver-class-name=${DB_DRIVER}
+
+#############################
+# JPA (PRODUCTION)
+#############################
+
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+
+#############################
+# Security Hardening
+#############################
+
+spring.h2.console.enabled=false
