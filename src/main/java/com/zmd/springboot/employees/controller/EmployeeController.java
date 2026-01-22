@@ -1,28 +1,64 @@
 package com.zmd.springboot.employees.controller;
 
-import com.zmd.springboot.employees.dao.EmployeeDAO;
+import com.zmd.springboot.employees.dto.EmployeeRequest;
 import com.zmd.springboot.employees.entity.Employee;
 import com.zmd.springboot.employees.service.EmployeeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/employees")
+@Tag(name = "Employee Rest API Endpoints", description = "Operations related to employees")
 public class EmployeeController {
 
     private EmployeeService employeeService;
 
-   @Autowired
-   public void setEmployeeService(EmployeeService employeeService) {
-       this.employeeService = employeeService;
-   }
+    @Autowired
+    public void setEmployeeService(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
 
+    @Operation(summary = "Get all employees", description = "Retrieve a list of all employees")
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public List<Employee> findAll() {
         return employeeService.findAll();
     }
+
+    @Operation(summary = "Get a single employee", description = "Get a single employee from database")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{employeeId}")
+    public Employee getEmployee(@PathVariable @Min(1) long employeeId) {
+        return employeeService.findById(employeeId);
+    }
+
+    @Operation(summary = "Create a new employee", description = "Add a new employee to database")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
+    public Employee addEmployee(@Valid @RequestBody EmployeeRequest employeeRequest) {
+        return employeeService.save(employeeRequest);
+    }
+
+    @Operation(summary = "Update an employee", description = "Update the details of a current employee")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{employeeId}")
+    public Employee updateEmployee(@PathVariable @Min(1) long employeeId,
+                                   @Valid @RequestBody EmployeeRequest employeeRequest) {
+        return employeeService.update(employeeId, employeeRequest);
+    }
+
+    @Operation(summary = "Delete an employee", description = "Remove an employee from the database")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{employeeId}")
+    public void deleteEmployee(@PathVariable @Min(1) long employeeId) {
+        employeeService.deleteById(employeeId);
+    }
+
 }

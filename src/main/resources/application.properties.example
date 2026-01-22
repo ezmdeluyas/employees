@@ -7,6 +7,13 @@ server.port=8080
 
 
 #############################
+# Swagger Configuration
+#############################
+
+springdoc.swagger-ui.path=/docs
+
+
+#############################
 # Database Configuration (H2 - Dev Example)
 #############################
 
