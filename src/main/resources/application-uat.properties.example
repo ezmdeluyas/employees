@@ -23,6 +23,7 @@ spring.jpa.show-sql=false
 spring.flyway.enabled=true
 spring.flyway.locations=classpath:db/migration/schema
 spring.flyway.validate-on-migrate=true
+spring.flyway.fail-on-missing-locations=true
 spring.flyway.clean-disabled=true
 
 #############################
