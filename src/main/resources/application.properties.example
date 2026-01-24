@@ -1,5 +1,5 @@
 #############################
-# Application Configuration
+# Application Base Config
 #############################
 
 spring.application.name=my-springboot-app
@@ -7,7 +7,7 @@ server.port=8080
 
 
 #############################
-# Swagger Configuration
+# OpenAPI / Swagger
 #############################
 
 springdoc.swagger-ui.path=/docs

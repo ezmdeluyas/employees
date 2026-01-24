@@ -2,7 +2,7 @@
 # DEV Database (H2)
 #############################
 
-spring.datasource.url=jdbc:h2:file:./data/employees-dev
+spring.datasource.url=jdbc:h2:file:./data/employees-dev;MODE=LEGACY;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
 spring.datasource.driver-class-name=org.h2.Driver
 spring.datasource.username=sa
 spring.datasource.password=
@@ -12,10 +12,22 @@ spring.datasource.password=
 #############################
 
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
-spring.jpa.hibernate.ddl-auto=update
+spring.jpa.hibernate.ddl-auto=validate
 
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
+
+#############################
+# Flyway (DEV)
+#############################
+
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration/schema,classpath:db/migration/dev
+spring.flyway.validate-on-migrate=true
+spring.flyway.fail-on-missing-locations=true
+spring.flyway.clean-disabled=true
+spring.flyway.out-of-order=false
+
 
 #############################
 # H2 Console (DEV ONLY)
