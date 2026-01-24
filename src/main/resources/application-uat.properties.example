@@ -17,6 +17,15 @@ spring.jpa.hibernate.ddl-auto=validate
 spring.jpa.show-sql=false
 
 #############################
+# Flyway (UAT)
+#############################
+
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration/schema
+spring.flyway.validate-on-migrate=true
+spring.flyway.clean-disabled=true
+
+#############################
 # Disable Dev Tools
 #############################
 
