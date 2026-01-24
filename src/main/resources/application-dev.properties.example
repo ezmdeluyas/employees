@@ -25,6 +25,11 @@ spring.flyway.enabled=true
 spring.flyway.locations=classpath:db/migration/schema,classpath:db/migration/dev
 spring.flyway.validate-on-migrate=true
 spring.flyway.fail-on-missing-locations=true
+spring.flyway.clean-disabled=true
+spring.flyway.out-of-order=false
+spring.flyway.schemas=public
+spring.flyway.default-schema=public
+spring.flyway.table=flyway_schema_history
 
 #############################
 # H2 Console (DEV ONLY)
