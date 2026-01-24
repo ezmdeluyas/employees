@@ -23,7 +23,7 @@ public class SecurityConfig {
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
         // Define query to retrieve a user by username
-        jdbcUserDetailsManager.setUsersByUsernameQuery("select user_id, password, active from system_users where user_id=?");
+        jdbcUserDetailsManager.setUsersByUsernameQuery("select user_id, password, enabled from system_users where user_id=?");
 
         // Define query to retrieve the authorities/roles by username
         jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("select user_id, role from roles where user_id=?");
@@ -43,9 +43,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/employees/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/employees/**").hasRole("ADMIN")
                 );
-
-        http.httpBasic(AbstractHttpConfigurer::disable);
-
         // Use HTTP Basic Authentication
         http.httpBasic(Customizer.withDefaults());
 
