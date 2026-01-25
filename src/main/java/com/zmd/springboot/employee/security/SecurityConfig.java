@@ -1,5 +1,6 @@
 package com.zmd.springboot.employee.security;
 
+import com.zmd.springboot.employee.config.ApiPathProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,6 +21,12 @@ import static com.zmd.springboot.employee.config.ApiPaths.*;
 @Configuration
 public class SecurityConfig {
 
+    private final String apiBasePath;
+
+    public SecurityConfig(ApiPathProperties props) {
+        this.apiBasePath = props.getBasePath();
+    }
+
     @Bean
     public UserDetailsManager userDetailsManager(DataSource dataSource) {
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
@@ -35,15 +42,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
+
+        String employeesBase = apiBasePath + EMPLOYEES;
+        String employeesAll = apiBasePath + EMPLOYEES_ALL;
+
         http.authorizeHttpRequests(configurer -> configurer
                         .requestMatchers(HttpMethod.GET, H2_CONSOLE).permitAll()
                         .requestMatchers(HttpMethod.POST, H2_CONSOLE).permitAll()
                         .requestMatchers(swaggerWhitelist()).permitAll()
-                        .requestMatchers(HttpMethod.GET, EMPLOYEES).hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.GET, EMPLOYEES_ALL).hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, EMPLOYEES).hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PUT, EMPLOYEES_ALL).hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, EMPLOYEES_ALL).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, employeesBase).hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, employeesAll).hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST, employeesBase).hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, employeesAll).hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, employeesAll).hasRole("ADMIN")
                 );
         // Use HTTP Basic Authentication
         http.httpBasic(Customizer.withDefaults());
