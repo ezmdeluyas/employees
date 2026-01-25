@@ -28,7 +28,16 @@ spring.flyway.clean-disabled=true
 spring.flyway.out-of-order=false
 
 #############################
-# Disable Dev Tools
+# Security Hardening
 #############################
 
 spring.h2.console.enabled=false
+spring.devtools.restart.enabled=false
+spring.devtools.livereload.enabled=false
+
+#############################
+# OpenAPI / Swagger
+#############################
+
+springdoc.api-docs.enabled=false
+springdoc.swagger-ui.enabled=false

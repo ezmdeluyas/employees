@@ -30,3 +30,12 @@ spring.flyway.out-of-order=false
 #############################
 
 spring.h2.console.enabled=false
+spring.devtools.restart.enabled=false
+spring.devtools.livereload.enabled=false
+
+#############################
+# OpenAPI / Swagger
+#############################
+
+springdoc.api-docs.enabled=false
+springdoc.swagger-ui.enabled=false

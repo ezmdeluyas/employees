@@ -54,13 +54,17 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(configurer -> {
 
-            configurer.requestMatchers(swaggerWhitelist()).permitAll();
-
+            // Swagger / OpenAPI
             if (isDev) {
-                // DEV: allow H2 console
+                configurer.requestMatchers(swaggerWhitelist()).permitAll();
+            } else {
+                configurer.requestMatchers(swaggerWhitelist()).denyAll();
+            }
+
+            // H2 console
+            if (isDev) {
                 configurer.requestMatchers(H2_CONSOLE).permitAll();
             } else {
-                // UAT/PROD: explicitly block H2 console even if someone misconfigures properties
                 configurer.requestMatchers(H2_CONSOLE).denyAll();
             }
 
