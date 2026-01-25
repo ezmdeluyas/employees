@@ -1,7 +1,7 @@
 package com.zmd.springboot.employee.security;
 
 import com.zmd.springboot.employee.config.ApiPathProperties;
-import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
+import com.zmd.springboot.employee.config.SecurityCorsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -9,15 +9,19 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.sql.DataSource;
-
 import java.util.Arrays;
 
 import static com.zmd.springboot.employee.config.ApiPaths.*;
@@ -35,11 +39,12 @@ public class SecurityConfig {
     public UserDetailsManager userDetailsManager(DataSource dataSource) {
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
-        // Define query to retrieve a user by username
-        jdbcUserDetailsManager.setUsersByUsernameQuery("select user_id, password, enabled from system_users where user_id=?");
-
-        // Define query to retrieve the authorities/roles by username
-        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("select user_id, role from roles where user_id=?");
+        jdbcUserDetailsManager.setUsersByUsernameQuery(
+                "select user_id, password, enabled from system_users where user_id=?"
+        );
+        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery(
+                "select user_id, role from roles where user_id=?"
+        );
 
         return jdbcUserDetailsManager;
     }
@@ -79,12 +84,24 @@ public class SecurityConfig {
         });
 
         http.httpBasic(Customizer.withDefaults());
+        http.cors(Customizer.withDefaults());
 
+        // REST hardening: don’t create sessions for API calls
+        http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // Step 3: CSRF strategy
+        // - Ignore CSRF for stateless API endpoints (Basic Auth via Authorization header)
+        // - Ignore for dev tools endpoints (H2 + Swagger UI/Try-it-out)
+        http.csrf(csrf -> csrf.ignoringRequestMatchers(
+                employeesBase,
+                employeesAll,
+                H2_CONSOLE
+        ).ignoringRequestMatchers(swaggerWhitelist()));
+
+        // Frames: allow only in dev (H2 console uses frames)
         if (isDev) {
-            http.csrf(csrf -> csrf.ignoringRequestMatchers(PathRequest.toH2Console()));
             http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         } else {
-            http.csrf(AbstractHttpConfigurer::disable);
             http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny));
         }
 
@@ -94,8 +111,23 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource(SecurityCorsProperties props) {
+        CorsConfiguration cfg = new CorsConfiguration();
+
+        cfg.setAllowedOrigins(props.getAllowedOrigins());
+        cfg.setAllowedMethods(props.getAllowedMethods());
+        cfg.setAllowedHeaders(props.getAllowedHeaders());
+        cfg.setExposedHeaders(props.getExposedHeaders());
+        cfg.setAllowCredentials(props.isAllowCredentials());
+        cfg.setMaxAge(props.getMaxAge());
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cfg);
+        return source;
+    }
+
+    @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
-        // Send 401 unauthorized status without triggering a basic auth
         return (request, response, e) -> {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
@@ -104,4 +136,8 @@ public class SecurityConfig {
         };
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
