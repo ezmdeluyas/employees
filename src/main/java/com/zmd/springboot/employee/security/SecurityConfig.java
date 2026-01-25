@@ -15,6 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
 
+import static com.zmd.springboot.employee.config.ApiPaths.*;
+
 @Configuration
 public class SecurityConfig {
 
@@ -32,16 +34,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http.authorizeHttpRequests(configurer -> configurer
-                        .requestMatchers(HttpMethod.GET, "/h2-console/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/h2-console/**").permitAll()
-                        .requestMatchers("/docs/**", "/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/employees").hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/employees/**").hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/employees").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/employees/**").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/employees/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, H2_CONSOLE).permitAll()
+                        .requestMatchers(HttpMethod.POST, H2_CONSOLE).permitAll()
+                        .requestMatchers(swaggerWhitelist()).permitAll()
+                        .requestMatchers(HttpMethod.GET, EMPLOYEES).hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, EMPLOYEES_ALL).hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST, EMPLOYEES).hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, EMPLOYEES_ALL).hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, EMPLOYEES_ALL).hasRole("ADMIN")
                 );
         // Use HTTP Basic Authentication
         http.httpBasic(Customizer.withDefaults());
@@ -62,7 +64,7 @@ public class SecurityConfig {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
             response.setHeader("WWW-Authenticate", "");
-            response.getWriter().write("Unauthorized");
+            response.getWriter().write("{\"message\":\"Unauthorized\"}");
         };
     }
 
