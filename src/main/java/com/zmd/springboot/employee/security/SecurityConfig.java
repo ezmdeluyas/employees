@@ -1,8 +1,10 @@
 package com.zmd.springboot.employee.security;
 
 import com.zmd.springboot.employee.config.ApiPathProperties;
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
@@ -15,6 +17,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
+
+import java.util.Arrays;
 
 import static com.zmd.springboot.employee.config.ApiPaths.*;
 
@@ -41,29 +45,46 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    public SecurityFilterChain filterChain(HttpSecurity http, Environment env) {
+
+        boolean isDev = Arrays.asList(env.getActiveProfiles()).contains("dev");
 
         String employeesBase = apiBasePath + EMPLOYEES;
         String employeesAll = apiBasePath + EMPLOYEES_ALL;
 
-        http.authorizeHttpRequests(configurer -> configurer
-                        .requestMatchers(HttpMethod.GET, H2_CONSOLE).permitAll()
-                        .requestMatchers(HttpMethod.POST, H2_CONSOLE).permitAll()
-                        .requestMatchers(swaggerWhitelist()).permitAll()
-                        .requestMatchers(HttpMethod.GET, employeesBase).hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.GET, employeesAll).hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, employeesBase).hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PUT, employeesAll).hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, employeesAll).hasRole("ADMIN")
-                );
-        // Use HTTP Basic Authentication
+        http.authorizeHttpRequests(configurer -> {
+
+            configurer.requestMatchers(swaggerWhitelist()).permitAll();
+
+            if (isDev) {
+                // DEV: allow H2 console
+                configurer.requestMatchers(H2_CONSOLE).permitAll();
+            } else {
+                // UAT/PROD: explicitly block H2 console even if someone misconfigures properties
+                configurer.requestMatchers(H2_CONSOLE).denyAll();
+            }
+
+            // API rules
+            configurer
+                    .requestMatchers(HttpMethod.GET, employeesBase).hasRole("EMPLOYEE")
+                    .requestMatchers(HttpMethod.GET, employeesAll).hasRole("EMPLOYEE")
+                    .requestMatchers(HttpMethod.POST, employeesBase).hasRole("MANAGER")
+                    .requestMatchers(HttpMethod.PUT, employeesAll).hasRole("MANAGER")
+                    .requestMatchers(HttpMethod.DELETE, employeesAll).hasRole("ADMIN")
+                    .anyRequest().authenticated();
+        });
+
         http.httpBasic(Customizer.withDefaults());
 
-        http.csrf(AbstractHttpConfigurer::disable);
+        if (isDev) {
+            http.csrf(csrf -> csrf.ignoringRequestMatchers(PathRequest.toH2Console()));
+            http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+        } else {
+            http.csrf(AbstractHttpConfigurer::disable);
+            http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny));
+        }
 
-        http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(authenticationEntryPoint()));
-
-        http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+        http.exceptionHandling(eh -> eh.authenticationEntryPoint(authenticationEntryPoint()));
 
         return http.build();
     }
