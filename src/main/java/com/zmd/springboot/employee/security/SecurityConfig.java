@@ -59,6 +59,9 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(configurer -> {
 
+            // Allow CORS preflight (OPTIONS) without authentication
+            configurer.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+
             // Swagger / OpenAPI
             if (isDev) {
                 configurer.requestMatchers(swaggerWhitelist()).permitAll();
