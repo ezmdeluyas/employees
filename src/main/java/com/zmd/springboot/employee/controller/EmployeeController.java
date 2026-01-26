@@ -17,10 +17,11 @@ import java.net.URI;
 import java.util.List;
 
 import static com.zmd.springboot.employee.config.ApiPaths.EMPLOYEES;
+import static com.zmd.springboot.employee.config.ApiPaths.ID_PATH;
 
 @Validated
 @RestController
-@RequestMapping(EMPLOYEES)
+@RequestMapping("${api.base-path}" + EMPLOYEES)
 @Tag(name = "Employee Rest API Endpoints", description = "Operations related to employees")
 public class EmployeeController {
 
@@ -38,7 +39,7 @@ public class EmployeeController {
     }
 
     @Operation(summary = "Get a single employee", description = "Get a single employee from database")
-    @GetMapping("/{employeeId}")
+    @GetMapping(ID_PATH)
     public ResponseEntity<Employee> getEmployee(@PathVariable @Min(1) long employeeId) {
         return ResponseEntity.ok(employeeService.getById(employeeId));
     }
@@ -58,7 +59,7 @@ public class EmployeeController {
     }
 
     @Operation(summary = "Update an employee", description = "Update the details of a current employee")
-    @PutMapping("/{employeeId}")
+    @PutMapping(ID_PATH)
     public ResponseEntity<Employee> updateEmployee(
             @PathVariable @Min(1) long employeeId,
             @Valid @RequestBody EmployeeRequest request
@@ -67,7 +68,7 @@ public class EmployeeController {
     }
 
     @Operation(summary = "Delete an employee", description = "Remove an employee from the database")
-    @DeleteMapping("/{employeeId}")
+    @DeleteMapping(ID_PATH)
     public ResponseEntity<Void> deleteEmployee(@PathVariable @Min(1) long employeeId) {
         employeeService.delete(employeeId);
         return ResponseEntity.noContent().build();

@@ -19,7 +19,7 @@ spring.jpa.show-sql=false
 #############################
 
 spring.flyway.enabled=true
-spring.flyway.locations=classpath:db/migration/schema
+spring.flyway.locations=classpath:db/migration/schema,classpath:db/migration/security
 spring.flyway.validate-on-migrate=true
 spring.flyway.fail-on-missing-locations=true
 spring.flyway.clean-disabled=true
@@ -30,3 +30,22 @@ spring.flyway.out-of-order=false
 #############################
 
 spring.h2.console.enabled=false
+spring.devtools.restart.enabled=false
+spring.devtools.livereload.enabled=false
+
+#############################
+# OpenAPI / Swagger
+#############################
+
+springdoc.api-docs.enabled=false
+springdoc.swagger-ui.enabled=false
+
+#############################
+# CORS
+#############################
+security.cors.allowed-origins=https://yourdomain.com
+security.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+security.cors.allowed-headers=Authorization,Content-Type
+security.cors.exposed-headers=Location
+security.cors.allow-credentials=true
+security.cors.max-age=3600
