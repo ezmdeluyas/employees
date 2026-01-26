@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Employees API - CORS Tester</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; line-height: 1.4; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    label { display:block; font-size: 12px; margin-top: 8px; color:#333; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+    button { padding: 10px 14px; border: 0; border-radius: 8px; cursor: pointer; }
+    button.primary { background: #111; color: #fff; }
+    button.ghost { background: #eee; }
+    pre { background: #0b1020; color: #e6e6e6; padding: 12px; border-radius: 10px; overflow:auto; }
+    .small { font-size: 12px; color:#666; }
+    .pill { display:inline-block; padding:4px 8px; border-radius: 999px; background:#f0f0f0; font-size: 12px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+    .checkrow { display:flex; align-items:center; gap:8px; margin-top: 10px; }
+    .hint { font-size: 12px; color:#666; margin-top:6px; }
+    code { background:#f3f3f3; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h2>Employees API — CORS Tester</h2>
+  <p class="small">
+    Open DevTools → Network. Try <span class="pill">POST/PUT/DELETE</span> to see the real preflight (OPTIONS).
+  </p>
+
+  <div class="card">
+    <label>API Base URL</label>
+    <input id="apiBase" value="http://localhost:8080" />
+
+    <label>API Path Prefix</label>
+    <input id="apiPrefix" value="/api/v1" />
+    <div class="hint">
+      Endpoints used: <code>{prefix}/employees</code> and <code>{prefix}/employees/{id}</code>
+    </div>
+
+    <div class="grid" style="margin-top:10px;">
+      <div>
+        <label>Username</label>
+        <input id="username" value="john" />
+      </div>
+      <div>
+        <label>Password (plain text)</label>
+        <input id="password" type="password" placeholder="Enter John's password" />
+      </div>
+    </div>
+
+    <div class="checkrow">
+      <input id="useBasic" type="checkbox" checked />
+      <label for="useBasic" style="margin:0;">Use Basic Auth (send Authorization header)</label>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="primary" onclick="getEmployees()">GET /employees</button>
+      <button class="ghost" onclick="sendPreflight()">Manual OPTIONS (Preflight)</button>
+      <button class="ghost" onclick="clearOutput()">Clear Output</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Create Employee (POST)</h3>
+    <label>JSON Body</label>
+    <textarea id="createBody" rows="6">{
+  "firstName": "Juan",
+  "lastName": "Dela Cruz",
+  "email": "juan.delacruz@example.com",
+  "jobTitle": "Developer"
+}</textarea>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="primary" onclick="createEmployee()">POST /employees</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Update Employee (PUT)</h3>
+
+    <div class="row">
+      <div style="flex:1; min-width: 220px;">
+        <label>Employee ID</label>
+        <input id="updateId" placeholder="e.g. 1" />
+      </div>
+    </div>
+
+    <label>JSON Body</label>
+    <textarea id="updateBody" rows="6">{
+  "firstName": "Juan",
+  "lastName": "Dela Cruz",
+  "email": "juan.delacruz@example.com",
+  "jobTitle": "Senior Developer"
+}</textarea>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="primary" onclick="updateEmployee()">PUT /employees/{id}</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Delete Employee (DELETE)</h3>
+
+    <div class="row">
+      <div style="flex:1; min-width: 220px;">
+        <label>Employee ID</label>
+        <input id="deleteId" placeholder="e.g. 1" />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="primary" onclick="deleteEmployee()">DELETE /employees/{id}</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Result</h3>
+    <pre id="output">Ready.</pre>
+  </div>
+
+  <script>
+    function baseUrl() {
+      return document.getElementById("apiBase").value.replace(/\/+$/, "");
+    }
+
+    function apiPrefix() {
+      const raw = (document.getElementById("apiPrefix").value || "").trim();
+      if (!raw) return "";
+      return raw.startsWith("/") ? raw.replace(/\/+$/, "") : ("/" + raw.replace(/\/+$/, ""));
+    }
+
+    function employeesBasePath() {
+      return `${apiPrefix()}/employees`;
+    }
+
+    function employeeByIdPath(id) {
+      return `${employeesBasePath()}/${encodeURIComponent(id)}`;
+    }
+
+    function out(text) {
+      document.getElementById("output").textContent = text;
+    }
+
+    function clearOutput() {
+      out("Cleared.");
+    }
+
+    function prettyHeaders(headersObj) {
+      const lines = [];
+      for (const [k, v] of headersObj.entries()) lines.push(`${k}: ${v}`);
+      return lines.sort().join("\n");
+    }
+
+    function buildHeaders({ includeJsonContentType } = { includeJsonContentType: true }) {
+      const headers = new Headers();
+
+      // For POST/PUT we need JSON Content-Type. For GET/DELETE it’s optional,
+      // but keeping it OFF avoids accidentally triggering preflight on GET.
+      if (includeJsonContentType) {
+        headers.set("Content-Type", "application/json");
+      }
+
+      const useBasic = document.getElementById("useBasic").checked;
+      if (useBasic) {
+        const u = document.getElementById("username").value || "";
+        const p = document.getElementById("password").value || "";
+        headers.set("Authorization", `Basic ${btoa(`${u}:${p}`)}`);
+      }
+
+      return headers;
+    }
+
+    async function request(method, path, body) {
+      const url = `${baseUrl()}${path}`;
+
+      // Only set Content-Type for requests that actually send a JSON body
+      const includeJsonContentType = (method === "POST" || method === "PUT");
+
+      const options = {
+        method,
+        headers: buildHeaders({ includeJsonContentType }),
+        mode: "cors",
+        credentials: "omit"
+      };
+      if (body !== undefined) options.body = body;
+
+      const started = Date.now();
+      try {
+        const res = await fetch(url, options);
+        const ms = Date.now() - started;
+
+        const headersText = prettyHeaders(res.headers);
+        const contentType = res.headers.get("content-type") || "";
+        const isJson = contentType.includes("application/json");
+
+        let payload;
+        try {
+          payload = isJson ? await res.json() : await res.text();
+        } catch (e) {
+          payload = "(Could not read body)";
+        }
+
+        out(
+`➡️ ${method} ${url}
+⏱️ ${ms} ms
+✅ Status: ${res.status} ${res.statusText}
+
+--- Response Headers ---
+${headersText}
+
+--- Body ---
+${typeof payload === "string" ? payload : JSON.stringify(payload, null, 2)}`
+        );
+      } catch (err) {
+        out(
+`❌ ${method} ${url}
+
+Fetch error:
+${err?.message || err}
+
+Tip:
+- If you see "CORS policy" error, the browser blocked the response.
+- For POST/PUT/DELETE, check Network tab for OPTIONS preflight and CORS allow headers/methods.`
+        );
+      }
+    }
+
+    function getEmployees() {
+      request("GET", employeesBasePath());
+    }
+
+    function createEmployee() {
+      const body = document.getElementById("createBody").value;
+      request("POST", employeesBasePath(), body);
+    }
+
+    function updateEmployee() {
+      const id = document.getElementById("updateId").value.trim();
+      if (!id) return out("⚠️ Please enter an ID for update.");
+      const body = document.getElementById("updateBody").value;
+      request("PUT", employeeByIdPath(id), body);
+    }
+
+    function deleteEmployee() {
+      const id = document.getElementById("deleteId").value.trim();
+      if (!id) return out("⚠️ Please enter an ID for delete.");
+      request("DELETE", employeeByIdPath(id));
+    }
+
+    // Manual preflight simulation: ask permission for a POST with JSON + Authorization.
+    function sendPreflight() {
+      const url = `${baseUrl()}${employeesBasePath()}`;
+
+      // If you're sending Basic/JWT in real calls, preflight usually requests "authorization".
+      const requestedHeaders = ["content-type", "authorization"];
+
+      fetch(url, {
+        method: "OPTIONS",
+        mode: "cors",
+        headers: {
+          "Access-Control-Request-Method": "POST",
+          "Access-Control-Request-Headers": requestedHeaders.join(","),
+          "Origin": window.location.origin
+        }
+      }).then(async res => {
+        out(
+`➡️ OPTIONS ${url}
+✅ Status: ${res.status} ${res.statusText}
+
+--- Response Headers ---
+${prettyHeaders(res.headers)}
+
+Note: Real preflight is triggered automatically by the browser for POST/PUT/DELETE.`
+        );
+      }).catch(err => {
+        out(`❌ OPTIONS ${url}\n\n${err?.message || err}`);
+      });
+    }
+  </script>
+</body>
+</html>
